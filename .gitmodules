@@ -11,3 +11,6 @@
 [submodule "lib/googletest"]
 	path = lib/googletest
 	url = https://github.com/google/googletest
+[submodule "lib/nrf5"]
+	path = lib/nrf5
+	url = https://github.com/chie4hao/nRF5_SDK.git
