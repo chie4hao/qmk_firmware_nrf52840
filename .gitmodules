@@ -11,6 +11,12 @@
 [submodule "lib/googletest"]
 	path = lib/googletest
 	url = https://github.com/google/googletest
+<<<<<<< HEAD
 [submodule "lib/nrf5"]
 	path = lib/nrf5
 	url = https://github.com/chie4hao/nRF5_SDK.git
+=======
+[submodule "lib/lufa"]
+	path = lib/lufa
+	url = https://github.com/qmk/lufa
+>>>>>>> 79a6c6eda50671b28f32dfb73728fcc1671fe4fc
