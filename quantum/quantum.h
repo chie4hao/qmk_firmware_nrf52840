@@ -24,6 +24,11 @@
 #    include "hal.h"
 #endif
 
+#if defined(PROTOCOL_NRF5)
+#include "nrf.h"
+#include "nrf_gpio.h"
+#endif
+
 #include "wait.h"
 #include "matrix.h"
 #include "keymap.h"
@@ -177,6 +182,20 @@ typedef ioline_t pin_t;
 #    define writePin(pin, level) ((level) ? writePinHigh(pin) : writePinLow(pin))
 
 #    define readPin(pin) palReadLine(pin)
+#endif
+
+#if defined(PROTOCOL_NRF5)
+    typedef uint8_t pin_t;
+
+    #define setPinInputHigh(pin)    nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_PULLUP)
+    #define setPinInputLow(pin)     nrf_gpio_cfg_input(pin, NRF_GPIO_PIN_PULLDOWN)
+    #define setPinOutput(pin)       nrf_gpio_cfg_output(pin)
+
+    #define writePinHigh(pin)       nrf_gpio_pin_set(pin)
+    #define writePinLow(pin)        nrf_gpio_pin_clear(pin)
+    #define writePin(pin, level)    ((level) ? writePinHigh(pin) : writePinLow(pin))
+
+    #define readPin(pin)            nrf_gpio_pin_read(pin)
 #endif
 
 // Send string macros

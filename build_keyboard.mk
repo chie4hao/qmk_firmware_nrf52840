@@ -236,6 +236,9 @@ ifdef MCU_FAMILY
 else ifdef ARM_ATSAM
     PLATFORM=ARM_ATSAM
     FIRMWARE_FORMAT=bin
+else ifneq ($(findstring NRF52840, $(MCU)),)
+	PLATFORM=NRF5
+	FIRMWARE_FORMAT?=hex
 else
     PLATFORM=AVR
     FIRMWARE_FORMAT?=hex
@@ -267,6 +270,10 @@ ifeq ($(PLATFORM),CHIBIOS)
     else ifneq ("$(wildcard $(TOP_DIR)/drivers/boards/$(BOARD)/bootloader_defs.h)","")
         OPT_DEFS += -include $(TOP_DIR)/drivers/boards/$(BOARD)/bootloader_defs.h
     endif
+endif
+
+ifeq ($(PLATFORM),NRF5)
+	include $(TMK_PATH)/nrf5.mk
 endif
 
 # Find all of the config.h files and add them to our CONFIG_H define.
@@ -372,6 +379,10 @@ ifeq ($(PLATFORM),CHIBIOS)
     include $(TMK_PATH)/protocol/chibios.mk
 endif
 
+ifeq ($(PLATFORM),NRF5)
+	include $(TMK_PATH)/protocol/nrf5.mk
+endif
+
 ifeq ($(strip $(VISUALIZER_ENABLE)), yes)
     VISUALIZER_DIR = $(QUANTUM_DIR)/visualizer
     VISUALIZER_PATH = $(QUANTUM_PATH)/visualizer
@@ -389,7 +400,7 @@ $(KEYMAP_OUTPUT)_DEFS := $(OPT_DEFS) $(GFXDEFS) \
 -DQMK_SUBPROJECT -DQMK_SUBPROJECT_H -DQMK_SUBPROJECT_CONFIG_H
 $(KEYMAP_OUTPUT)_INC :=  $(VPATH) $(EXTRAINCDIRS)
 $(KEYMAP_OUTPUT)_CONFIG := $(CONFIG_H)
-$(KEYBOARD_OUTPUT)_SRC := $(CHIBISRC) $(GFXSRC)
+$(KEYBOARD_OUTPUT)_SRC := $(CHIBISRC) $(GFXSRC) $(NRFSRC_FILES)
 $(KEYBOARD_OUTPUT)_DEFS := $(PROJECT_DEFS) $(GFXDEFS)
 $(KEYBOARD_OUTPUT)_INC := $(PROJECT_INC) $(GFXINC)
 $(KEYBOARD_OUTPUT)_CONFIG := $(PROJECT_CONFIG)

@@ -91,7 +91,9 @@ ifeq ("$(shell echo "int main(){}" | $(CC) -fdiagnostics-color -x c - -o /dev/nu
 endif
 endif
 CFLAGS += -Wall
-CFLAGS += -Wstrict-prototypes
+ifneq ($(PLATFORM), NRF5)
+	CFLAGS += -Wstrict-prototypes
+endif
 ifneq ($(strip $(ALLOW_WARNINGS)), yes)
     CFLAGS += -Werror
 endif

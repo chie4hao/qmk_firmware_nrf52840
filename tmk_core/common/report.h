@@ -86,6 +86,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #        define KEYBOARD_REPORT_BITS (NKRO_EPSIZE - 1)
 #        undef NKRO_SHARED_EP
 #        undef MOUSE_SHARED_EP
+#    elif defined(PROTOCOL_NRF5)
+#        define KEYBOARD_REPORT_BITS (NKRO_EPSIZE - 1)
 #    else
 #        error "NKRO not supported with this protocol"
 #    endif
