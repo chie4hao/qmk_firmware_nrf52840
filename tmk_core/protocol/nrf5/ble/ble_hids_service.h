@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 #include "ble_hids.h"
-#include "bsp.h"
+#include "boards.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"

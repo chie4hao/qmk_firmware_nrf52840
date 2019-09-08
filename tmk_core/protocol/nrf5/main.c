@@ -43,7 +43,7 @@
 
 #include "nrf5_usb.h"
 #include "ble_service.h"
-#include "bsp_btn_ble.h"
+#include "ble.h"
 
 #include "keyboard.h"
 

@@ -14,7 +14,7 @@
 #include "app_usbd_core.h"
 #include "app_usbd_hid_generic.h"
 #include "app_error.h"
-#include "bsp.h"
+#include "boards.h"
 
 #include "nrf_log.h"
 #include "host_driver.h"
