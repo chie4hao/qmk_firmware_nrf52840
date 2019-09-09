@@ -19,11 +19,12 @@
 #include "ble_service.h"
 #include "rgb_matrix.h"
 #include "is31fl3737.h"
+#include "i2c_master.h"
 
 // extern keymap_config_t keymap_config;
 extern rgb_config_t rgb_matrix_config;
 
-enum planck_layers {
+enum qs75_layers {
     _DEFAULT,
     _OTHER,
     _SLASH,
@@ -175,7 +176,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER_WRITELOCK, 0xC5);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER, ISSI_PAGE_FUNCTION);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_REG_CONFIGURATION, 0x00);
+                    // i2c_stop();
                 } else {
+                    // i2c_start();
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER_WRITELOCK, 0xC5);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER, ISSI_PAGE_FUNCTION);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_REG_CONFIGURATION, 0x01);

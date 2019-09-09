@@ -6,6 +6,7 @@
 #define MATRIX_ROWS 4
 #define MATRIX_COLS 12
 
+// NRF52840 pin map: ((port << 5) | (pin & 0x1F))
 #define MATRIX_ROW_PINS \
     { 26, 41, 8, 3 }
 #define MATRIX_COL_PINS \
@@ -13,18 +14,12 @@
 #define DEBOUNCE 1
 #define BLUETOOTH_ENABLE
 
-// #define KBD_WDT_ENABLE
-// #define BLE_NKRO
-// #define FORCE_NKRO
-#define NKRO_EPSIZE 22
 
 #define PERMISSVIE_HOLD
 #define IGNORE_MOD_TAP_INTERRUPT
 #define TAPPING_FORCE_HOLD
 #define TAPPING_TERM 150
 #define ONESHOT_TIMEOUT 120
-
-#define POWER_SAVE_TIMEOUT 120
 
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_FRAMEBUFFER_EFFECTS
@@ -55,7 +50,17 @@
 #define DISABLE_RGB_MATRIX_SPLASH
 #define DISABLE_RGB_MATRIX_SOLID_SPLASH
 
-#define CONFIG_PIN_SCL 15
-#define CONFIG_PIN_SDA 17
+// The pin number for SCL pin
+#define I2C1_SCL 15
+// The pin number for SDA pin
+#define I2C1_SDA 17
+// Enter sleep modes after 120 seconds
+#define POWER_SAVE_TIMEOUT 120
+// #define BLE_NKRO
+// Force NKRO
+// #define FORCE_NKRO
+#define NKRO_EPSIZE 22
+// Enable watchdog
+// #define KBD_WDT_ENABLE
 
 #endif

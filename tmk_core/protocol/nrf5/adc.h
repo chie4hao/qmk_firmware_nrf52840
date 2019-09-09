@@ -1,6 +1,6 @@
 
-/// Initializing ADC(for nrf51) or SADC(for nrf52)
+// Initializing ADC
 void adc_init(void);
 
-/// Measure VCC voltage
+// Measure VCC voltage
 void adc_start(void);

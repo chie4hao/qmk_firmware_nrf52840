@@ -1,7 +1,7 @@
 MCU = NRF52840
 
+# GCC ARM Toolchain path
 GNU_INSTALL_ROOT =
-GNU_VERSION = 8.3.0
 GNU_PREFIX = arm-none-eabi
 
 MOUSEKEY_ENABLE = yes

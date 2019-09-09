@@ -137,6 +137,7 @@ void hid_kbd_user_ev_handler(app_usbd_class_inst_t const *p_inst, app_usbd_hid_u
             break;
     }
 }
+
 void hid_user_ev_handler(app_usbd_class_inst_t const *p_inst, app_usbd_hid_user_event_t event) {
     switch (event) {
         case APP_USBD_HID_USER_EVT_OUT_REPORT_READY: {

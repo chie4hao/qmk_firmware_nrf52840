@@ -175,11 +175,10 @@ NRF_CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 NRF_CFLAGS += -DFLOAT_ABI_HARD
 NRF_CFLAGS += -DNRF52840_XXAA
 NRF_CFLAGS += -DSWI_DISABLE0
+
 NRF_CFLAGS += -mcpu=cortex-m4
 NRF_CFLAGS += -mthumb -mabi=aapcs
-
 NRF_CFLAGS += -Wall
-# keep every function in a separate section, this allows linker to discard unused ones
 NRF_CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in a separate section, this allows linker to discard unused ones
 NRF_CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
@@ -216,16 +215,18 @@ NRF_LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 NRF_LDFLAGS += --specs=nano.specs
 
+# # Toolchain commands
+CC      = $(GNU_INSTALL_ROOT)$(GNU_PREFIX)-gcc
+AR      = $(GNU_INSTALL_ROOT)$(GNU_PREFIX)-ar
+NM      = $(GNU_INSTALL_ROOT)$(GNU_PREFIX)-nm
+OBJDUMP = $(GNU_INSTALL_ROOT)$(GNU_PREFIX)-objdump
+OBJCOPY = $(GNU_INSTALL_ROOT)$(GNU_PREFIX)-objcopy
+SIZE    = $(GNU_INSTALL_ROOT)$(GNU_PREFIX)-size
+HEX     = $(OBJCOPY) -O $(FORMAT)
+EEP     =
+BIN     = $(OBJCOPY) -O binary
 
-CC = arm-none-eabi-gcc
-OBJCOPY = arm-none-eabi-objcopy
-OBJDUMP = arm-none-eabi-objdump
-SIZE = arm-none-eabi-size
-AR = arm-none-eabi-ar
-NM = arm-none-eabi-nm
-HEX = $(OBJCOPY) -O $(FORMAT)
-EEP =
-BIN = $(OBJCOPY) -O binary
+COMMON_VPATH += $(DRIVER_PATH)/nrf5
 
 NRFCFLAGS += $(COMPILEFLAGS)
 MCUFLAGS = -mcpu=cortex-m4
