@@ -275,7 +275,6 @@ static void delete_bonds(void) {
 void advertising_start(bool erase_bonds) {
     if (erase_bonds == true) {
         delete_bonds();
-        // Advertising is started by PM_EVT_PEERS_DELETE_SUCCEEDED event.
     } else {
         if (!ble_disable) {
             return;
@@ -439,14 +438,7 @@ static void pm_evt_handler(pm_evt_t const *p_evt) {
         } break;
 
         case PM_EVT_PEERS_DELETE_SUCCEEDED: {
-            advertising_start(false);
-            if (m_conn_handle == BLE_CONN_HANDLE_INVALID) {
-                return;
-            }
-            err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            if (err_code != NRF_ERROR_INVALID_STATE) {
-                APP_ERROR_CHECK(err_code);
-            }
+            NVIC_SystemReset();
         } break;
 
         case PM_EVT_PEER_DATA_UPDATE_SUCCEEDED:

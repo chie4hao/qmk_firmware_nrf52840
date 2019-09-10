@@ -17,21 +17,32 @@
 
 static const nrfx_twim_t m_twim_master = NRFX_TWIM_INSTANCE(0);
 static volatile int      twim_complete = 0;
+static volatile bool     twim_enable  = false;
 
 void twim_evt_handler(nrfx_twim_evt_t const* p_event, void* p_context) { twim_complete = p_event->type + 1; }
 
 int i2c_init(void) {
     const nrfx_twim_config_t config = {.scl = I2C1_SCL, .sda = I2C1_SDA, .frequency = CONFIG_I2C_FREQ, .interrupt_priority = 5, .hold_bus_uninit = true};
     int                      res    = (int)nrfx_twim_init(&m_twim_master, &config, twim_evt_handler, NULL);
-    nrfx_twim_enable(&m_twim_master);
+    // nrfx_twim_enable(&m_twim_master);
+    i2c_start();
     return res;
 }
 
-void i2c_start(void) { nrfx_twim_enable(&m_twim_master); }
+void i2c_start(void) {
+    nrfx_twim_enable(&m_twim_master);
+    twim_enable = true;
+}
 
-void i2c_stop(void) { nrfx_twim_disable(&m_twim_master); }
+void i2c_stop(void) {
+    twim_enable = false;
+    nrfx_twim_disable(&m_twim_master);
+}
 
 uint8_t i2c_transmit(uint8_t address, uint8_t* data, uint16_t length, uint16_t timeout) {
+    if (!twim_enable) {
+        return 0;
+    }
     nrfx_err_t res;
     twim_complete = 0;
 
@@ -57,6 +68,9 @@ uint8_t i2c_transmit(uint8_t address, uint8_t* data, uint16_t length, uint16_t t
 }
 
 uint8_t i2c_receive(uint8_t address, uint8_t* data, uint16_t length) {
+    if (!twim_enable) {
+        return 0;
+    }
     nrfx_err_t res;
     twim_complete = 0;
     res           = nrfx_twim_rx(&m_twim_master, address >> 1, data, length);

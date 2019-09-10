@@ -18,6 +18,9 @@ void     eeprom_update_byte(uint8_t *__p, uint8_t __value);
 void     eeprom_update_word(uint16_t *__p, uint16_t __value);
 void     eeprom_update_dword(uint32_t *__p, uint32_t __value);
 void     eeprom_update_block(const void *__src, void *__dst, uint32_t __n);
+#ifdef PROTOCOL_NRF5
+void     eeprom_update(void);
+#endif
 #endif
 
 #endif /* TMK_CORE_COMMON_EEPROM_H_ */

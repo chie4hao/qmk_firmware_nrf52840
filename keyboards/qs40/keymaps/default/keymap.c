@@ -51,18 +51,6 @@ enum planck_keycodes { DISC = SAFE_RANGE, ADVW, ADVS, SEL0, SEL1, SEL2, DELB, SL
 #define BLUETOG MO(_BLUE)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-
-    /* Qwerty
-     * ,-----------------------------------------------------------------------------------.
-     * | Tab  |   Q  |   W  |   E  |   R  |   T  |   Y  |   U  |   I  |   O  |   P  | Bksp |
-     * |------+------+------+------+------+-------------+------+------+------+------+------|
-     * | Esc  |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  "   |
-     * |------+------+------+------+------+------|------+------+------+------+------+------|
-     * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |Enter |
-     * |------+------+------+------+------+------+------+------+------+------+------+------|
-     * | Brite| Ctrl | Alt  | GUI  |Lower |    Space    |Raise | Left | Down |  Up  |Right |
-     * `-----------------------------------------------------------------------------------'
-     */
     [_DEFAULT] = LAYOUT(
         KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_RCBR,
         LCTLESC, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, SCOLONL, CLTQUOT,
@@ -176,9 +164,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER_WRITELOCK, 0xC5);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER, ISSI_PAGE_FUNCTION);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_REG_CONFIGURATION, 0x00);
-                    // i2c_stop();
+                    i2c_stop();
                 } else {
-                    // i2c_start();
+                    i2c_start();
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER_WRITELOCK, 0xC5);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER, ISSI_PAGE_FUNCTION);
                     IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_REG_CONFIGURATION, 0x01);

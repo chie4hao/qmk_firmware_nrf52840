@@ -1,19 +1,3 @@
-/* Copyright 2017 Fred Sundvik
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include <string.h>
 #include "eeprom.h"
 #include "fds.h"
@@ -25,10 +9,18 @@
 #define EEPROM_SIZE 36
 
 __ALIGN(4)
-static uint8_t buffer[EEPROM_SIZE] __attribute__((aligned(4)));
-static bool fds_inited = false;
-static fds_record_desc_t record_desc = {0};
-static fds_record_t const record = {.file_id = FILE_ID, .key = RECORD_KEY, .data.p_data = &buffer, .data.length_words = (EEPROM_SIZE + 3) / sizeof(uint32_t)};
+static uint8_t           buffer[EEPROM_SIZE] __attribute__((aligned(4)));
+static bool              fds_inited         = false;
+static volatile bool     fds_update         = false;
+static volatile uint32_t fds_update_counter = 0;
+
+// FDS record update after 500 ms.
+#ifndef FDS_UPDATE_TIMEOUT
+#    define FDS_UPDATE_TIMEOUT 500
+#endif
+
+static fds_record_desc_t  record_desc = {0};
+static fds_record_t const record      = {.file_id = FILE_ID, .key = RECORD_KEY, .data.p_data = &buffer, .data.length_words = (EEPROM_SIZE + 3) / sizeof(uint32_t)};
 /* Array to map FDS return values to strings. */
 
 char const *fds_err_str[] = {
@@ -43,9 +35,18 @@ static void eeprom_write() {
     APP_ERROR_CHECK(rc);
 }
 
-static void eeprom_update() {
-    ret_code_t rc = fds_record_update(&record_desc, &record);
-    APP_ERROR_CHECK(rc);
+void eeprom_update() {
+    if (!fds_update) {
+        return;
+    }
+    if (fds_update_counter > FDS_UPDATE_TIMEOUT) {
+        fds_update_counter = 0;
+        fds_update         = false;
+        ret_code_t rc      = fds_record_update(&record_desc, &record);
+        APP_ERROR_CHECK(rc);
+    } else {
+        fds_update_counter += KEYBOARD_SCAN_INTERVAL;
+    }
 }
 
 static bool volatile m_fds_initialized = false;
@@ -146,9 +147,10 @@ void eeprom_write_byte(uint8_t *addr, uint8_t value) {
     if (!fds_inited) {
         eeprom_init();
     }
-    uintptr_t offset = (uintptr_t)addr;
-    buffer[offset]   = value;
-    eeprom_update();
+    uintptr_t offset   = (uintptr_t)addr;
+    buffer[offset]     = value;
+    fds_update         = true;
+    fds_update_counter = 0;
 }
 
 uint16_t eeprom_read_word(const uint16_t *addr) {
@@ -173,22 +175,24 @@ void eeprom_write_word(uint16_t *addr, uint16_t value) {
     if (!fds_inited) {
         eeprom_init();
     }
-    uintptr_t p = (uintptr_t)(uint8_t *)addr;
-    buffer[p++] = value;
-    buffer[p]   = value >> 8;
-    eeprom_update();
+    uintptr_t p        = (uintptr_t)(uint8_t *)addr;
+    buffer[p++]        = value;
+    buffer[p]          = value >> 8;
+    fds_update         = true;
+    fds_update_counter = 0;
 }
 
 void eeprom_write_dword(uint32_t *addr, uint32_t value) {
     if (!fds_inited) {
         eeprom_init();
     }
-    uintptr_t p = (uintptr_t)(uint8_t *)addr;
-    buffer[p++] = value;
-    buffer[p++] = value >> 8;
-    buffer[p++] = value >> 16;
-    buffer[p]   = value >> 24;
-    eeprom_update();
+    uintptr_t p        = (uintptr_t)(uint8_t *)addr;
+    buffer[p++]        = value;
+    buffer[p++]        = value >> 8;
+    buffer[p++]        = value >> 16;
+    buffer[p]          = value >> 24;
+    fds_update         = true;
+    fds_update_counter = 0;
 }
 
 void eeprom_write_block(const void *buf, void *addr, uint32_t len) {
@@ -200,25 +204,19 @@ void eeprom_write_block(const void *buf, void *addr, uint32_t len) {
     while (len--) {
         buffer[p++] = *src++;
     }
-    eeprom_update();
+    fds_update         = true;
+    fds_update_counter = 0;
 }
 
 void eeprom_update_byte(uint8_t *addr, uint8_t value) { eeprom_write_byte(addr, value); }
 
-void eeprom_update_word(uint16_t *addr, uint16_t value) {
-    eeprom_write_word(addr, value);
-}
+void eeprom_update_word(uint16_t *addr, uint16_t value) { eeprom_write_word(addr, value); }
 
-void eeprom_update_dword(uint32_t *addr, uint32_t value) {
-    eeprom_write_dword(addr, value);
-}
+void eeprom_update_dword(uint32_t *addr, uint32_t value) { eeprom_write_dword(addr, value); }
 
-void eeprom_update_block(const void *buf, void *addr, uint32_t len) {
-    eeprom_write_block(buf, addr, len);
-}
+void eeprom_update_block(const void *buf, void *addr, uint32_t len) { eeprom_write_block(buf, addr, len); }
 
-
-// Fake eeprom
+// Dummy eeprom
 
 // #define EEPROM_SIZE 32
 // static uint8_t buffer[EEPROM_SIZE];

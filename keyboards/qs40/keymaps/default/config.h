@@ -50,6 +50,7 @@
 #define DISABLE_RGB_MATRIX_SPLASH
 #define DISABLE_RGB_MATRIX_SOLID_SPLASH
 
+#define KEYBOARD_SCAN_INTERVAL 4
 // The pin number for SCL pin
 #define I2C1_SCL 15
 // The pin number for SDA pin

@@ -46,16 +46,21 @@
 #include "ble.h"
 
 #include "keyboard.h"
+#include "eeprom.h"
 
 uint16_t m_conn_handle     = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 uint8_t  keyboard_protocol = 1;
 
 APP_TIMER_DEF(m_keyboard_scan_timer); /**< keyboard scan timer. */
-#define SCAN_INTERVAL APP_TIMER_TICKS(4)
+
+#ifndef KEYBOARD_SCAN_INTERVAL
+#    define KEYBOARD_SCAN_INTERVAL 4
+#endif
 
 static void keyboard_scan_handler(void* p_context) {
     UNUSED_PARAMETER(p_context);
     keyboard_task();
+    eeprom_update();
 }
 
 static void log_init(void) {
@@ -85,7 +90,7 @@ int main(void) {
 
     ret = app_timer_create(&m_keyboard_scan_timer, APP_TIMER_MODE_REPEATED, keyboard_scan_handler);
     APP_ERROR_CHECK(ret);
-    ret = app_timer_start(m_keyboard_scan_timer, SCAN_INTERVAL, NULL);
+    ret = app_timer_start(m_keyboard_scan_timer, APP_TIMER_TICKS(KEYBOARD_SCAN_INTERVAL), NULL);
 
     if (!NRF_USBD->ENABLE) {
         advertising_start(false);
