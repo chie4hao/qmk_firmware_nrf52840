@@ -155,6 +155,8 @@ NRFINC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/modules/nrfx/mdk \
 
+bin: $(BUILD_DIR)/$(TARGET).bin sizeafter
+	$(COPY) $(BUILD_DIR)/$(TARGET).bin $(TARGET).bin;
 
 ifeq ($(NRF_DEBUG), yes)
   NRF_CFLAGS += -DNRF_LOG_ENABLED=1

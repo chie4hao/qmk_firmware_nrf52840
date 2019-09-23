@@ -18,7 +18,6 @@
 #include "muse.h"
 #include "ble_service.h"
 #include "rgb_matrix.h"
-#include "is31fl3737.h"
 #include "i2c_master.h"
 
 // extern keymap_config_t keymap_config;
@@ -35,11 +34,6 @@ enum qs75_layers {
 };
 
 enum planck_keycodes { DISC = SAFE_RANGE, ADVW, ADVS, SEL0, SEL1, SEL2, DELB, SLEEP, REBOOT };
-
-#define ISSI_REG_CONFIGURATION 0x00
-#define ISSI_COMMANDREGISTER 0xFD
-#define ISSI_COMMANDREGISTER_WRITELOCK 0xFE
-#define ISSI_PAGE_FUNCTION 0x03
 
 #define LCTLESC MT(MOD_LCTL, KC_ESC)
 #define LTPSC LT(_SPACE, KC_SPC)
@@ -63,10 +57,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                         // KC_A, KC_B, KC_C, KC_D, KC_E, KC_F, KC_G, KC_H, KC_I, KC_J, KC_K, KC_L
                         ),
     [_OTHER]   = LAYOUT(
-        KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_I, KC_O, KC_P, KC_RCBR,
-        LCTLESC, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_J, KC_K, KC_L, SCOLONL, CLTQUOT,
-        KC_LCBR, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, SLASHL, KC_SFTENT,
-        KC_CAPS, KC_NLCK, RGB_MOD, KC_LALT, KC_LGUI, KC_LSFT, LTPSC, MOUSEL, CK_TOGG, KC_RGUI, KC_RALT, OTHERL
+        KC_TAB, KC_Q, KC_W, KC_E, KC_R, KC_T, KC_Y, KC_U, KC_UP, KC_O, KC_P, KC_RCBR,
+        KC_ESC, KC_A, KC_S, KC_D, KC_F, KC_G, KC_H, KC_LEFT, KC_DOWN, KC_RIGHT, KC_SCLN, CLTQUOT,
+        KC_LSFT, KC_Z, KC_X, KC_C, KC_V, KC_B, KC_N, KC_M, KC_COMM, KC_DOT, SLASHL, KC_ENTER,
+        KC_CAPS, KC_NLCK, RGB_MOD, KC_LALT, KC_LGUI, KC_LSFT, KC_SPC, MOUSEL, BLUETOG, KC_RGUI, KC_RALT, OTHERL
                     //   SEL1, KC_NO,DISC, ADVS, RESET, DELB, KC_G, KC_H, KC_I, KC_J, KC_K, KC_L,
                     //   KC_A, SEL2, KC_C, KC_D, KC_E, KC_F, KC_G, KC_H, KC_I, KC_J, KC_K, KC_L,
                     //   KC_A, KC_B, KC_C, KC_D, KC_E, KC_F, KC_G, KC_H, KC_I, KC_J, KC_K, KC_L,
@@ -98,11 +92,20 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_BLUE] = LAYOUT(
         RESET,   OUT_USB, OUT_BT,  ADVS,    ADVW,    REBOOT,  _______, _______, _______, _______, _______, _______,
-        SEL0,    SEL1,    SEL2,    DISC,    DELB   , _______, _______, _______, _______, _______, _______, _______,
+        SEL0,    SEL1,    SEL2,    DISC,    DELB   , SLEEP,   _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
     )
 };
+
+void keyboard_post_init_user() {
+    #ifdef IS31FL3737
+    // Shutdown IS31FL3737 if rgb disabled
+    if (!rgb_matrix_config.enable) {
+        i2c_stop();
+    }
+    #endif
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     #ifdef POWER_SAVE_TIMEOUT
@@ -161,22 +164,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case RGB_TOG:
             if (record->event.pressed) {
                 if (rgb_matrix_config.enable) {
-                    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER_WRITELOCK, 0xC5);
-                    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER, ISSI_PAGE_FUNCTION);
-                    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_REG_CONFIGURATION, 0x00);
                     i2c_stop();
                 } else {
                     i2c_start();
-                    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER_WRITELOCK, 0xC5);
-                    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER, ISSI_PAGE_FUNCTION);
-                    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_REG_CONFIGURATION, 0x01);
                 }
             }
             return true;
 
         case SLEEP:
             if (!record->event.pressed) {
-                sleep_mode_enter();
+                deep_sleep_mode_enter();
             }
             return false;
     }

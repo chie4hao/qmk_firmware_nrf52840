@@ -11,7 +11,7 @@
     { 26, 41, 8, 3 }
 #define MATRIX_COL_PINS \
     { 6, 45, 7, 38, 12, 36, 34, 32, 24, 13, 20, 22 }
-#define DEBOUNCE 1
+#define DEBOUNCE 20
 #define BLUETOOTH_ENABLE
 
 
@@ -55,11 +55,11 @@
 #define I2C1_SCL 15
 // The pin number for SDA pin
 #define I2C1_SDA 17
-// Enter sleep modes after 120 seconds
-#define POWER_SAVE_TIMEOUT 120
-// #define BLE_NKRO
+// Enter sleep modes after 600 seconds
+#define POWER_SAVE_TIMEOUT 600
+#define BLE_NKRO
 // Force NKRO
-// #define FORCE_NKRO
+#define FORCE_NKRO
 #define NKRO_EPSIZE 22
 // Enable watchdog
 // #define KBD_WDT_ENABLE

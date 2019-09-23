@@ -78,7 +78,7 @@
 #include "ble_service.h"
 #include "ble_hids_service.h"
 #include "outputselect.h"
-#include "is31fl3737.h"
+#include "i2c_master.h"
 
 uint8_t              keyboard_ble_led_stats = 0;
 static volatile bool ble_disable            = true; /**< Handle of the current connection. */
@@ -151,6 +151,7 @@ BLE_ADVERTISING_DEF(m_advertising); /**< Advertising module instance. */
 static pm_peer_id_t m_peer_id;
 static uint32_t     m_whitelist_peer_cnt;
 static pm_peer_id_t m_whitelist_peers[BLE_GAP_WHITELIST_ADDR_MAX_COUNT];
+static void sleep_mode_enter(void);
 
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_HUMAN_INTERFACE_DEVICE_SERVICE, BLE_UUID_TYPE_BLE}};
 
@@ -747,11 +748,9 @@ static void timers_start(void) {
  *
  * @note This function will not return.
  */
-void sleep_mode_enter(void) {
+static void sleep_mode_enter(void) {
 #ifdef IS31FL3737
-    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER_WRITELOCK, 0xC5);
-    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_COMMANDREGISTER, ISSI_PAGE_FUNCTION);
-    IS31FL3737_write_register(DRIVER_ADDR_1, ISSI_REG_CONFIGURATION, 0x00);
+    i2c_stop();
 #endif
     NRF_LOG_INFO("Sleep mode");
     ret_code_t err_code;
@@ -765,6 +764,18 @@ void sleep_mode_enter(void) {
     for (uint8_t i = 0; i < MATRIX_COLS; i++) {
         nrf_gpio_cfg_sense_input(col_pins[i], NRF_GPIO_PIN_PULLUP, NRF_GPIO_PIN_SENSE_LOW);
     }
+
+    // Go to system-off mode (this function will not return; wakeup will cause a reset).
+    err_code = sd_power_system_off();
+    APP_ERROR_CHECK(err_code);
+}
+
+void deep_sleep_mode_enter(void) {
+#ifdef IS31FL3737
+    i2c_stop();
+#endif
+    NRF_LOG_INFO("Deep sleep mode");
+    ret_code_t err_code;
 
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
     err_code = sd_power_system_off();

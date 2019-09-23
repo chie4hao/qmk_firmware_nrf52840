@@ -263,16 +263,16 @@ void hids_kbd_init(void) {
 
     memset(&hids_init_obj, 0, sizeof(hids_init_obj));
 
-    hids_init_obj.evt_handler     = on_hids_evt;
-    hids_init_obj.error_handler   = service_error_handler;
-    hids_init_obj.is_kb           = false;
-    hids_init_obj.is_mouse        = false;
-    hids_init_obj.inp_rep_count   = NUM_BLE_HID_DESC;
-    hids_init_obj.p_inp_rep_array = input_report_array;
-    hids_init_obj.outp_rep_count  = 0;
-    // hids_init_obj.outp_rep_count                 = 1;
-    hids_init_obj.p_outp_rep_array               = output_report_array;
-    hids_init_obj.feature_rep_count              = 1;
+    hids_init_obj.evt_handler      = on_hids_evt;
+    hids_init_obj.error_handler    = service_error_handler;
+    hids_init_obj.is_kb            = false;
+    hids_init_obj.is_mouse         = false;
+    hids_init_obj.inp_rep_count    = NUM_BLE_HID_DESC;
+    hids_init_obj.p_inp_rep_array  = input_report_array;
+    hids_init_obj.outp_rep_count   = 1;
+    hids_init_obj.p_outp_rep_array = output_report_array;
+    // hids_init_obj.feature_rep_count              = 1;
+    hids_init_obj.feature_rep_count              = 0;
     hids_init_obj.p_feature_rep_array            = feature_report_array;
     hids_init_obj.rep_map.data_len               = sizeof(report_map_data);
     hids_init_obj.rep_map.p_data                 = report_map_data;

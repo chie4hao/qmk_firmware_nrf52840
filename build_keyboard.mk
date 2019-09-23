@@ -238,7 +238,7 @@ else ifdef ARM_ATSAM
     FIRMWARE_FORMAT=bin
 else ifneq ($(findstring NRF52840, $(MCU)),)
 	PLATFORM=NRF5
-	FIRMWARE_FORMAT?=hex
+	FIRMWARE_FORMAT?=bin
 else
     PLATFORM=AVR
     FIRMWARE_FORMAT?=hex
