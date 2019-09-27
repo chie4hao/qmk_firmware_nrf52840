@@ -23,5 +23,5 @@ void bootloader_jump(void) {
     NRF_LOG_DEBUG("In ble_dfu_buttonless_bootloader_start_finalize\r\n");
     sd_power_gpregret_clr(0, 0xffffffff);
     sd_power_gpregret_set(0, BOOTLOADER_DFU_START);
-    NVIC_SystemReset();
+    sd_nvic_SystemReset();
 }

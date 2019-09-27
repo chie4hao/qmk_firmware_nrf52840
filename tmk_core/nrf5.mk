@@ -155,9 +155,6 @@ NRFINC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/modules/nrfx/mdk \
 
-bin: $(BUILD_DIR)/$(TARGET).bin sizeafter
-	$(COPY) $(BUILD_DIR)/$(TARGET).bin $(TARGET).bin;
-
 ifeq ($(NRF_DEBUG), yes)
   NRF_CFLAGS += -DNRF_LOG_ENABLED=1
   NRF_CFLAGS += -DNRF_LOG_BACKEND_RTT_ENABLED=1
@@ -240,3 +237,68 @@ EXTRAINCDIRS := $(NRFINC_FOLDERS)
 CFLAGS += $(NRF_CFLAGS)
 LDFLAGS += $(NRF_LDFLAGS)
 ASFLAGS += $(ASMFLAGS)
+
+$(BUILD_DIR)/private.key:
+	nrfutil keys generate $(BUILD_DIR)/private.key
+$(BUILD_DIR)/public_key.c:
+	nrfutil keys display --key pk --format code $(BUILD_DIR)/private.key --out_file $(BUILD_DIR)/public_key.c
+generate-keys: $(BUILD_DIR)/private.key $(BUILD_DIR)/public_key.c
+
+bin: $(BUILD_DIR)/$(TARGET).bin cpfirmware sizeafter
+	$(COPY) $(BUILD_DIR)/$(TARGET).bin $(TARGET).bin;
+
+export GNU_INSTALL_ROOT
+export GNU_PREFIX
+generate-bootloader:
+	$(MAKE) -C tmk_core/$(NRF_DIR)/bootloader/pca10056_usb/armgcc
+
+flash_softdevice:
+	@echo Flashing: s140_nrf52_6.1.1_softdevice.hex
+	nrfjprog -f nrf52 --reset --program $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.1_softdevice.hex
+
+flash_bootloader: generate-bootloader
+	@echo Flashing: .build/nrf_bootloader/nrf52840_xxaa.hex
+	nrfjprog -f nrf52 --reset --program $(BUILD_DIR)/nrf_bootloader/nrf52840_xxaa.hex
+
+bootloader: generate-bootloader
+	nrfjprog -f nrf52 --recover
+	nrfjprog -f nrf52 --eraseall
+	@echo Flashing: s140_nrf52_6.1.1_softdevice.hex
+	nrfjprog -f nrf52 --program $(SDK_ROOT)/components/softdevice/s140/hex/s140_nrf52_6.1.1_softdevice.hex
+	@echo Flashing: .build/nrf_bootloader/nrf52840_xxaa.hex
+	nrfjprog -f nrf52 --program $(BUILD_DIR)/nrf_bootloader/nrf52840_xxaa.hex
+	nrfjprog -f nrf52 --reset
+
+nrfutil: $(BUILD_DIR)/$(TARGET).bin cpfirmware sizeafter
+	nrfutil pkg generate --hw-version 52 --application-version 1 --sd-req 0xB6 --application $(BUILD_DIR)/$(TARGET).bin $(BUILD_DIR)/$(TARGET).zip
+	$(call EXEC_NRFUTIL)
+
+GREP ?= grep
+
+define EXEC_NRFUTIL
+	USB= ;\
+	if $(GREP) -q -s Microsoft /proc/version; then \
+		echo 'ERROR: NRF flashing cannot be automated within the Windows Subsystem for Linux (WSL) currently. Instead, take the .hex file generated and flash it using AVRDUDE, AVRDUDESS, or XLoader.'; \
+	else \
+		printf "Detecting USB port, reset your controller now."; \
+		ls /dev/tty* > /tmp/1; \
+		while [ -z $$USB ]; do \
+			sleep 0.5; \
+			printf "."; \
+			ls /dev/tty* > /tmp/2; \
+			USB=`comm -13 /tmp/1 /tmp/2 | $(GREP) -o '/dev/tty.*'`; \
+			mv /tmp/2 /tmp/1; \
+		done; \
+		echo ""; \
+		echo "Device $$USB has appeared; assuming it is the controller."; \
+		if $(GREP) -q -s 'MINGW\|MSYS' /proc/version; then \
+			USB=`echo "$$USB" | perl -pne 's/\/dev\/ttyS(\d+)/COM.($$1+1)/e'`; \
+			echo "Remapped MSYS2 USB port to $$USB"; \
+			sleep 1; \
+		else \
+			printf "Waiting for $$USB to become writable."; \
+			while [ ! -w "$$USB" ]; do sleep 0.5; printf "."; done; echo ""; \
+		fi; \
+		nrfutil dfu usb-serial -pkg $(BUILD_DIR)/$(TARGET).zip -p $$USB; \
+	fi
+endef
