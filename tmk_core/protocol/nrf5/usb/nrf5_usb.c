@@ -13,7 +13,7 @@ static uint8_t keyboard_led_stats = 0;
 static bool m_report_pending;
 
 static const app_usbd_hid_subclass_desc_t *keyboard_hid_report_desc[] = {&kbd_desc};
-APP_USBD_HID_GENERIC_GLOBAL_DEF(m_app_hid_kbd, HID_KBD_INTERFACE, hid_kbd_user_ev_handler, (NRF_DRV_USBD_EPIN1), keyboard_hid_report_desc, 1, 1, APP_USBD_HID_SUBCLASS_BOOT, APP_USBD_HID_PROTO_KEYBOARD);
+APP_USBD_HID_GENERIC_GLOBAL_DEF(m_app_hid_kbd, HID_KBD_INTERFACE, hid_kbd_user_ev_handler, (NRF_DRV_USBD_EPIN6), keyboard_hid_report_desc, 1, 1, APP_USBD_HID_SUBCLASS_BOOT, APP_USBD_HID_PROTO_KEYBOARD);
 
 #ifdef NKRO_ENABLE
 static const app_usbd_hid_subclass_desc_t *keyboard2_hid_report_desc[] = {&kbd2_desc};
@@ -274,12 +274,31 @@ static void send_consumer(uint16_t data) {
 #endif
 }
 
+#ifdef MIDI_ENABLE
+
+void send_midi_packet(MIDI_EventPacket_t *event) {
+    // NRF_LOG_INFO("asdfjkl %d", sizeof(MIDI_EventPacket_t));
+    // NRF_LOG_INFO("asdfjkl %d %d", event->Event, event->Data1);
+    // app_usbd_audio_class_tx_start(&m_app_audio_microphone.base, (uint8_t *)event, sizeof(MIDI_EventPacket_t));
+
+    // NRF_LOG_INFO("EPINEN: %d", NRF_USBD->EPINEN);
+    // chnWrite(&drivers.midi_driver.driver, (uint8_t *)event, sizeof(MIDI_EventPacket_t));
+}
+
+bool recv_midi_packet(MIDI_EventPacket_t *const event) {
+    // size_t size = chnReadTimeout(&drivers.midi_driver.driver, (uint8_t *)event, sizeof(MIDI_EventPacket_t), TIME_IMMEDIATE);
+    // return size == sizeof(MIDI_EventPacket_t);
+    return 0;
+}
+
+#endif
+
 #include "nrf_delay.h"
 void usb_keyboard_init(void) {
     ret_code_t                     ret;
-    static const app_usbd_config_t usbd_config = {
-        .ev_state_proc = usbd_user_ev_handler,
-    };
+    static const app_usbd_config_t usbd_config = {.ev_state_proc = usbd_user_ev_handler,
+                                                  // chie4 add
+                                                  .enable_sof = true};
 
     // ret = nrf_drv_clock_init();
     // APP_ERROR_CHECK(ret);

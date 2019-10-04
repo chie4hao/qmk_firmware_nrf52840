@@ -47,6 +47,9 @@
 
 #include "keyboard.h"
 #include "eeprom.h"
+#ifdef MIDI_ENABLE
+#include "qmk_midi.h"
+#endif
 
 uint16_t m_conn_handle     = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 uint8_t  keyboard_protocol = 1;
@@ -87,6 +90,10 @@ int main(void) {
 
     usb_keyboard_init();
     ble_service_init();
+
+    #ifdef MIDI_ENABLE
+        setup_midi();
+    #endif
 
     ret = app_timer_create(&m_keyboard_scan_timer, APP_TIMER_MODE_REPEATED, keyboard_scan_handler);
     APP_ERROR_CHECK(ret);

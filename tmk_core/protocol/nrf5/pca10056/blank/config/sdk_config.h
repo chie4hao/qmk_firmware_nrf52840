@@ -6187,7 +6187,7 @@
 
 
 #ifndef APP_USBD_AUDIO_ENABLED
-#define APP_USBD_AUDIO_ENABLED 0
+#define APP_USBD_AUDIO_ENABLED 1
 #endif
 
 // <e> APP_USBD_ENABLED - app_usbd - USB Device library
@@ -8209,7 +8209,7 @@
 // <e> NRFX_USBD_CONFIG_LOG_ENABLED - Enable logging in the module
 //==========================================================
 #ifndef NRFX_USBD_CONFIG_LOG_ENABLED
-#define NRFX_USBD_CONFIG_LOG_ENABLED 0
+#define NRFX_USBD_CONFIG_LOG_ENABLED 1
 #endif
 // <o> NRFX_USBD_CONFIG_LOG_LEVEL  - Default Severity level
 
@@ -8220,7 +8220,7 @@
 // <4=> Debug
 
 #ifndef NRFX_USBD_CONFIG_LOG_LEVEL
-#define NRFX_USBD_CONFIG_LOG_LEVEL 3
+#define NRFX_USBD_CONFIG_LOG_LEVEL 4
 #endif
 
 // <o> NRFX_USBD_CONFIG_INFO_COLOR  - ANSI escape code prefix.

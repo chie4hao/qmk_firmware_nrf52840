@@ -58,6 +58,16 @@ static void fds_evt_handler(fds_evt_t const *p_evt) {
         case FDS_EVT_INIT:
             if (p_evt->result == FDS_SUCCESS) {
                 m_fds_initialized = true;
+
+                fds_stat_t stat = {0};
+                ret_code_t rc   = fds_stat(&stat);
+                APP_ERROR_CHECK(rc);
+                NRF_LOG_INFO("Found %d valid records.", stat.valid_records);
+                NRF_LOG_INFO("Found %d dirty records (ready to be garbage collected).", stat.dirty_records);
+
+                if (stat.dirty_records > 34) {
+                    fds_gc();
+                }
             }
             break;
 
@@ -107,12 +117,6 @@ static void eeprom_init(void) {
     while (!m_fds_initialized) {
         power_manage();
     }
-
-    fds_stat_t stat = {0};
-    rc              = fds_stat(&stat);
-    APP_ERROR_CHECK(rc);
-    NRF_LOG_INFO("Found %d valid records.", stat.valid_records);
-    NRF_LOG_INFO("Found %d dirty records (ready to be garbage collected).", stat.dirty_records);
 
     fds_find_token_t ftok = {0};
 

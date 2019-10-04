@@ -1,0 +1,7 @@
+void chSysLock() {
+
+}
+
+void chSysUnlock() {
+
+}

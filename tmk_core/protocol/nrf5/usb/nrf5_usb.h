@@ -13,11 +13,13 @@
 #include "app_usbd.h"
 #include "app_usbd_core.h"
 #include "app_usbd_hid_generic.h"
+#include "app_usbd_audio.h"
 #include "app_error.h"
 #include "boards.h"
 
 #include "nrf_log.h"
 #include "host_driver.h"
+#include "LUFA/Drivers/USB/USB.h"
 
 /**
  * @brief HID generic class interface number.
