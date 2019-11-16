@@ -300,15 +300,6 @@ void usb_keyboard_init(void) {
                                                   // chie4 add
                                                   .enable_sof = true};
 
-    // ret = nrf_drv_clock_init();
-    // APP_ERROR_CHECK(ret);
-    // nrf_drv_clock_lfclk_request(NULL);
-    // while(!nrf_drv_clock_lfclk_is_running()) {
-
-    // }
-    // ret = app_timer_init();
-    // APP_ERROR_CHECK(ret);
-
     ret = app_usbd_init(&usbd_config);
     APP_ERROR_CHECK(ret);
 

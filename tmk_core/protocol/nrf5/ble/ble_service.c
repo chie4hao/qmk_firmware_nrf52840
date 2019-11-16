@@ -151,7 +151,7 @@ BLE_ADVERTISING_DEF(m_advertising); /**< Advertising module instance. */
 static pm_peer_id_t m_peer_id;
 static uint32_t     m_whitelist_peer_cnt;
 static pm_peer_id_t m_whitelist_peers[BLE_GAP_WHITELIST_ADDR_MAX_COUNT];
-static void sleep_mode_enter(void);
+static void         sleep_mode_enter(void);
 
 static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_HUMAN_INTERFACE_DEVICE_SERVICE, BLE_UUID_TYPE_BLE}};
 
@@ -767,6 +767,8 @@ static void sleep_mode_enter(void) {
 
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
     err_code = sd_power_system_off();
+    while (1) {
+    }
     APP_ERROR_CHECK(err_code);
 }
 
@@ -779,6 +781,8 @@ void deep_sleep_mode_enter(void) {
 
     // Go to system-off mode (this function will not return; wakeup will cause a reset).
     err_code = sd_power_system_off();
+    while (1) {
+    }
     APP_ERROR_CHECK(err_code);
 }
 

@@ -1,9 +1,5 @@
 #include "ble_hids_service.h"
-
-#if defined NKRO_ENABLE && defined BLE_NKRO
-#    include "keycode_config.h"
-extern keymap_config_t keymap_config;
-#endif
+#include "keycode_config.h"
 
 #define OUTPUT_REPORT_INDEX 0    /**< Index of Output Report. */
 #define OUTPUT_REPORT_MAX_LEN 1  /**< Maximum length of Output Report. */
@@ -14,7 +10,8 @@ extern keymap_config_t keymap_config;
 
 #define BASE_USB_HID_SPEC_VERSION 0x0101 /**< Version number of base USB HID Specification implemented by this application. */
 
-static bool m_in_boot_mode = false; /**< Current protocol mode. */
+static bool            m_in_boot_mode = false; /**< Current protocol mode. */
+extern keymap_config_t keymap_config;
 
 BLE_HIDS_DEF(m_hids_kbd, /**< Structure used to identify the HID service. */
              NRF_SDH_BLE_TOTAL_LINK_COUNT, KBD_INPUT_REPORT_KEYS_MAX_LEN,
@@ -52,7 +49,6 @@ void hids_kbd_init(void) {
     static ble_hids_feature_rep_init_t feature_report_array[1];
 
     static uint8_t report_map_data[] = {
-#ifndef BLE_NKRO
         0x05, 0x01,  // Usage Page (Generic Desktop)
         0x09, 0x06,  // Usage (Keyboard)
         0xA1, 0x01,  // Collection (Application)
@@ -100,12 +96,12 @@ void hids_kbd_init(void) {
 
         0xC0,  // End Collection (Application)
 
-#else
+#if defined BLE_NKRO && defined NKRO_ENABLE
         0x05, 0x01, /* USAGE_PAGE (Generic Desktop)                   */
         0x09, 0x06, /* USAGE (Keyboard)                               */
         0xa1, 0x01, /* COLLECTION (Application)                       */
 
-        0x85, KBD_BLE_HID_DESC_NUM + 1,
+        0x85, NKRO_BLE_HID_DESC_NUM + 1,
 
         0x05, 0x07, /*   USAGE_PAGE (Keyboard)                        */
         0x19, 0xe0, /*   USAGE_MINIMUM (Keyboard LeftControl)         */
@@ -126,15 +122,15 @@ void hids_kbd_init(void) {
         0x75, 0x03, /*   REPORT_SIZE (3)                              */
         0x91, 0x03, /*   OUTPUT (Cnst,Var,Abs)                        */
 
-        0x95, (KBD_INPUT_REPORT_KEYS_MAX_LEN - 1) * 8,     /*   REPORT_COUNT (6)                             */
-        0x75, 0x01,                                        /*   REPORT_SIZE (8)                              */
-        0x15, 0x00,                                        /*   LOGICAL_MINIMUM (0)                          */
-        0x25, 0x01,                                        /*   LOGICAL_MAXIMUM (101)                        */
-        0x05, 0x07,                                        /*   USAGE_PAGE (Keyboard)                        */
-        0x19, 0x00,                                        /*   USAGE_MINIMUM (Reserved (no event indicated))*/
-        0x29, (KBD_INPUT_REPORT_KEYS_MAX_LEN - 1) * 8 - 1, /*   USAGE_MAXIMUM (Keyboard Application)         */
-        0x81, 0x02,                                        /*   INPUT (Data,Ary,Abs)                         */
-        0xc0,                                              /* END_COLLECTION                                 */
+        0x95, (NKRO_INPUT_REPORT_KEYS_MAX_LEN - 1) * 8,     /*   REPORT_COUNT (6)                             */
+        0x75, 0x01,                                         /*   REPORT_SIZE (8)                              */
+        0x15, 0x00,                                         /*   LOGICAL_MINIMUM (0)                          */
+        0x25, 0x01,                                         /*   LOGICAL_MAXIMUM (101)                        */
+        0x05, 0x07,                                         /*   USAGE_PAGE (Keyboard)                        */
+        0x19, 0x00,                                         /*   USAGE_MINIMUM (Reserved (no event indicated))*/
+        0x29, (NKRO_INPUT_REPORT_KEYS_MAX_LEN - 1) * 8 - 1, /*   USAGE_MAXIMUM (Keyboard Application)         */
+        0x81, 0x02,                                         /*   INPUT (Data,Ary,Abs)                         */
+        0xc0,                                               /* END_COLLECTION                                 */
 #endif
 
 #ifdef EXTRAKEY_ENABLE
@@ -211,6 +207,17 @@ void hids_kbd_init(void) {
     p_input_report->sec.cccd_wr = SEC_JUST_WORKS;
     p_input_report->sec.wr      = SEC_JUST_WORKS;
     p_input_report->sec.rd      = SEC_JUST_WORKS;
+
+#if defined BLE_NKRO && defined NKRO_ENABLE
+    p_input_report                      = &input_report_array[NKRO_BLE_HID_DESC_NUM];
+    p_input_report->max_len             = NKRO_INPUT_REPORT_KEYS_MAX_LEN;
+    p_input_report->rep_ref.report_id   = NKRO_BLE_HID_DESC_NUM + 1;
+    p_input_report->rep_ref.report_type = BLE_HIDS_REP_TYPE_INPUT;
+
+    p_input_report->sec.cccd_wr = SEC_JUST_WORKS;
+    p_input_report->sec.wr      = SEC_JUST_WORKS;
+    p_input_report->sec.rd      = SEC_JUST_WORKS;
+#endif
 
 #ifdef EXTRAKEY_ENABLE
     p_input_report                      = &input_report_array[EXTRA_BLE_HID_DESC_NUM - 1];
@@ -381,14 +388,14 @@ static uint8_t keyboard_leds(void) { return keyboard_ble_led_stats; }
 
 static void send_keyboard(report_keyboard_t *report) {
     if (m_conn_handle != BLE_CONN_HANDLE_INVALID) {
-#if defined BLE_NKRO && defined NKRO_ENABLE
-        if (keyboard_protocol && keymap_config.nkro) {
-            keys_send(KBD_BLE_HID_DESC_NUM, KBD_INPUT_REPORT_KEYS_MAX_LEN, &report->nkro.mods);
-        } else
-#endif
-        {
+        if (!keyboard_protocol || !keymap_config.nkro) {
             keys_send(KBD_BLE_HID_DESC_NUM, KBD_INPUT_REPORT_KEYS_MAX_LEN, &report->mods);
         }
+#if defined BLE_NKRO && defined NKRO_ENABLE
+        else {
+            keys_send(NKRO_BLE_HID_DESC_NUM, NKRO_INPUT_REPORT_KEYS_MAX_LEN, &report->nkro.mods);
+        }
+#endif
     }
 }
 

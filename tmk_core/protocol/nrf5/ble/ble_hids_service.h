@@ -11,10 +11,16 @@
 
 #define KBD_BLE_HID_DESC_NUM 0
 
-#ifdef EXTRAKEY_ENABLE
-#    define EXTRA_BLE_HID_DESC_NUM (KBD_BLE_HID_DESC_NUM + 2)
+#if defined BLE_NKRO && defined NKRO_ENABLE
+#    define NKRO_BLE_HID_DESC_NUM (KBD_BLE_HID_DESC_NUM + 1)
 #else
-#    define EXTRA_BLE_HID_DESC_NUM (KBD_BLE_HID_DESC_NUM + 0)
+#    define NKRO_BLE_HID_DESC_NUM (KBD_BLE_HID_DESC_NUM + 0)
+#endif
+
+#ifdef EXTRAKEY_ENABLE
+#    define EXTRA_BLE_HID_DESC_NUM (NKRO_BLE_HID_DESC_NUM + 2)
+#else
+#    define EXTRA_BLE_HID_DESC_NUM (NKRO_BLE_HID_DESC_NUM + 0)
 #endif
 
 #ifdef MOUSE_ENABLE
@@ -25,12 +31,11 @@
 
 #define NUM_BLE_HID_DESC (MOUSE_BLE_HID_DESC_NUM + 1)
 
-#ifndef BLE_NKRO
-#    define KBD_INPUT_REPORT_KEYS_MAX_LEN 8 /**< Maximum length of the Input Report characteristic. */
-#else
-#    define KBD_INPUT_REPORT_KEYS_MAX_LEN NKRO_EPSIZE
+#if defined BLE_NKRO && defined NKRO_ENABLE
+#    define NKRO_INPUT_REPORT_KEYS_MAX_LEN NKRO_EPSIZE
 #endif
 
+#define KBD_INPUT_REPORT_KEYS_MAX_LEN 8
 #define MOUSE_INPUT_REPORT_KEYS_MAX_LEN 5
 #define SYSTEM_INPUT_REPORT_KEYS_MAX_LEN 2
 #define CONSUMER_INPUT_REPORT_KEYS_MAX_LEN 2

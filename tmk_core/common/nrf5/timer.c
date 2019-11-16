@@ -19,35 +19,21 @@
 
 #include "app_timer.h"
 
-void timer_init()
-{
-    // do nothing
-}
+void timer_init() {}
 
-void timer_clear()
-{
-    // can't do anything
-}
+void timer_clear() {}
 
-inline uint16_t timer_read()
-{
-    return (uint16_t)(timer_read32() & 0xFFFF);
-}
+inline uint16_t timer_read() { return (uint16_t)(timer_read32() & 0xFFFF); }
 
-inline uint32_t timer_read32()
-{
+inline uint32_t timer_read32() {
     uint32_t time = app_timer_cnt_get();
     return time / 32;
 }
 
-inline uint16_t timer_elapsed(uint16_t last)
-{
-    return TIMER_DIFF_16(timer_read(), last);
-}
+inline uint16_t timer_elapsed(uint16_t last) { return TIMER_DIFF_16(timer_read(), last); }
 
-inline uint32_t timer_elapsed32(uint32_t last)
-{
-    uint32_t time = app_timer_cnt_get();
+inline uint32_t timer_elapsed32(uint32_t last) {
+    uint32_t time    = app_timer_cnt_get();
     uint32_t elapsed = app_timer_cnt_diff_compute(time, last * 32);
     return elapsed / 32;
 }
