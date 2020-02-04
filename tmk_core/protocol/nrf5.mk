@@ -4,7 +4,6 @@ NRF_DIR = $(PROTOCOL_DIR)/nrf5
 SRC += \
 	$(NRF_DIR)/adc.c \
 	$(NRF_DIR)/outputselect.c \
-	$(NRF_DIR)/led.c \
 	$(NRF_DIR)/main.c \
 	$(NRF_DIR)/outputselect.c \
 	$(NRF_DIR)/usb/nrf5_usb.c \
