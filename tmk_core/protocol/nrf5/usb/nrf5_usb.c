@@ -2,6 +2,7 @@
 #include "nrf5_usb.h"
 #include "ble_service.h"
 #include "outputselect.h"
+#include "nrf_delay.h"
 
 #ifdef NKRO_ENABLE
 #    include "keycode_config.h"
@@ -293,7 +294,6 @@ bool recv_midi_packet(MIDI_EventPacket_t *const event) {
 
 #endif
 
-#include "nrf_delay.h"
 void usb_keyboard_init(void) {
     ret_code_t                     ret;
     static const app_usbd_config_t usbd_config = {.ev_state_proc = usbd_user_ev_handler,
