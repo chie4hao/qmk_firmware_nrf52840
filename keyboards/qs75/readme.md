@@ -1,10 +1,9 @@
 QS75
 ===
 
-A 15x5 ortholinear keyboard kit made and sold by OLKB and Massdrop. [More info on qmk.fm](http://qmk.fm/planck/)
+60% othorlinear keyboard with 5 rows and 15 columns.
 
 Keyboard Maintainer: [Chie_4](https://github.com/jackhumbert)  
-Hardware Supported: Planck PCB rev1, rev2, rev3, rev4, rev5, rev6; Planck Light  
 Hardware Availability: [PCB](https://github.com/chie4hao/qs75)
 
 Make example for this keyboard (after setting up your build environment):
